@@ -1,0 +1,7 @@
+.nav-item-div {
+    padding: 10px 10px 10px 10px;
+    cursor: pointer;
+}
+.nav-item-div:hover {
+    background: #f0f0f0;
+}

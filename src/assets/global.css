@@ -1,0 +1,10 @@
+body {
+  display: block;
+  margin: 0px;
+}
+.el-divider--horizontal {
+  margin: 12px 0;
+}
+.el-table {
+  margin-bottom: 20px;
+}
