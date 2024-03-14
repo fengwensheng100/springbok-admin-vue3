@@ -211,7 +211,7 @@ function resetForm() {
   query.value.current = 1;
   tree.value.setCheckedKeys([]);
 }
-function loadSyMenuData() {
+function loadSysMenuData() {
   listSysMenu()
     .then((res) => {
       menuList.value = res.data;
@@ -312,7 +312,7 @@ function submitForm() {
 
 onMounted(() => {
   loadData();
-  loadSyMenuData();
+  loadSysMenuData();
 });
 </script>
 

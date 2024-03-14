@@ -1,8 +1,13 @@
 <template>
   <div class="sql-minitor-div">
-    <iframe src="http://localhost:9988/doc.html"></iframe>
+    <iframe :src="url"></iframe>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+const url = ref(import.meta.env.VITE_BASE_API + "doc.html");
+</script>
 
 <style scoped>
 .sql-minitor-div {

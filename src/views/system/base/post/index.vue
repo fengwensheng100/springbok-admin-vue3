@@ -17,18 +17,11 @@
     </div>
     <el-divider></el-divider>
     <div v-show="!showEdit">
-      <el-form :inline="true">
-        <el-form-item label="用户名">
+      <el-form :inline="true" @submit.prevent>
+        <el-form-item label="岗位名">
           <el-input
-            v-model="query.username"
-            placeholder="请输入用户名或昵称"
-            @keyup.enter="currentChange(1)"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input
-            v-model="query.mobile"
-            placeholder="请输入手机号"
+            v-model="query.PostName"
+            placeholder="请输入岗位名"
             @keyup.enter="currentChange(1)"
           ></el-input>
         </el-form-item>
@@ -42,26 +35,40 @@
     <div v-show="!showEdit">
       <el-table
         :data="tableData"
-        row-key="sysUserId"
+        row-key="sysPostId"
         border
         default-expand-all
         stripe
       >
         <el-table-column type="index" label="序号" width="60">
         </el-table-column>
-        <el-table-column prop="username" label="用户名" sortable width="180">
-        </el-table-column>
-        <el-table-column prop="nickName" label="昵称"> </el-table-column>
-        <el-table-column prop="mobile" label="手机号"> </el-table-column>
-        <el-table-column prop="sysPostName" label="岗位"> </el-table-column>
-        <el-table-column prop="createdName" label="创建人"> </el-table-column>
+        <el-table-column
+          prop="sysPostCode"
+          label="岗位编码"
+          width="180"
+        ></el-table-column>
+        <el-table-column
+          prop="sysPostName"
+          label="岗位名"
+          width="180"
+        ></el-table-column>
+        <el-table-column
+          prop="postSort"
+          label="排序"
+          width="80"
+        ></el-table-column>
+        <el-table-column
+          prop="remark"
+          label="备注"
+        ></el-table-column>
+        <el-table-column prop="createdName" label="创建人"></el-table-column>
         <el-table-column
           prop="createdTime"
           label="创建时间"
           :formatter="formatTableColumnDate"
         >
         </el-table-column>
-        <el-table-column prop="updatedName" label="修改人"> </el-table-column>
+        <el-table-column prop="updatedName" label="修改人"></el-table-column>
         <el-table-column
           label="修改时间"
           prop="updatedTime"
@@ -87,7 +94,6 @@
         <el-pagination
           background
           layout="prev, pager, next"
-          :current-page="query.current"
           :page-size="query.size"
           :total="query.total"
           @current-change="currentChange"
@@ -107,55 +113,29 @@
           >
             <el-row>
               <el-col :span="5">
-                <el-form-item label="用户名" prop="username">
-                  <el-input v-model="form.username"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="5">
-                <el-form-item label="角色" prop="sysRoleId">
-                  <el-select v-model="form.sysRoleId" placeholder="请选择">
-                    <el-option
-                      v-for="sysRole in sysRoleOptions"
-                      :key="sysRole.sysRoleId"
-                      :label="sysRole.roleName"
-                      :value="sysRole.sysRoleId"
-                    >
-                    </el-option>
-                  </el-select>
+                <el-form-item label="岗位编码" prop="sysPostCode">
+                  <el-input v-model="form.sysPostCode"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="5">
-                <el-form-item label="密码" prop="userPassword">
-                  <el-input v-model="form.userPassword"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="5">
-                <el-form-item label="岗位" prop="sysPostId">
-                  <el-select v-model="form.sysPostId" placeholder="请选择">
-                    <el-option
-                      v-for="sysPost in sysPostOptions"
-                      :key="sysPost.sysPostId"
-                      :label="sysPost.sysPostName"
-                      :value="sysPost.sysPostId"
-                    >
-                    </el-option>
-                  </el-select>
+                <el-form-item label="岗位名" prop="sysPostName">
+                  <el-input v-model="form.sysPostName"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="5">
-                <el-form-item label="昵称" prop="nickName">
-                  <el-input v-model="form.nickName"></el-input>
+                <el-form-item label="排序" prop="postSort">
+                  <el-input v-model="form.postSort"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="5">
-                <el-form-item label="手机号">
-                  <el-input v-model="form.mobile"></el-input>
+                <el-form-item label="备注" prop="remark">
+                  <el-input v-model="form.remark"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -166,15 +146,14 @@
   </div>
 </template>
 
-<script setup name="User">
+<script setup name="Post">
 import {
-  pageSysUser,
-  addSysUser,
-  updateSysUser,
-  deleteSysUser,
-} from "@/api/user";
-import { listSysRole } from "@/api/role";
-import { listSysPost } from "@/api/post";
+  pageSysPost,
+  selectSysPostById,
+  addSysPost,
+  updateSysPost,
+  deleteSysPost,
+} from "@/api/post";
 import { ElMessageBox } from "element-plus";
 import { ElMessage } from "element-plus";
 import { ref, onMounted } from "vue";
@@ -186,38 +165,20 @@ let query = ref({ size: 10, current: 0, total: 1 });
 let form = ref({});
 let tableData = ref([]);
 let rules = ref({
-  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-  userPassword: [{ required: true, message: "请输入密码", trigger: "blur" }],
-  nickName: [{ required: true, message: "请输入昵称", trigger: "blur" }],
-  sysRoleId: [{ required: true, message: "请选择角色", trigger: "blur" }],
+  sysPostCode: [{ required: true, message: "请输入岗位编码", trigger: "blur" }],
+  sysPostName: [{ required: true, message: "请输入岗位名称", trigger: "blur" }],
 });
-let sysRoleOptions = ref([]);
-let sysPostOptions = ref([]);
 
 function currentChange(current) {
   query.value.current = current;
   loadData();
 }
-function loadSysRoleOptions() {
-  listSysRole()
-    .then((res) => {
-      sysRoleOptions.value = res.data;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-}
-function loadSysPostOptions() {
-  listSysPost()
-    .then((res) => {
-      sysPostOptions.value = res.data;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+function resetForm() {
+  form.value = {};
+  query.value.current = 1;
 }
 function loadData() {
-  pageSysUser(query.value)
+  pageSysPost(query.value)
     .then((res) => {
       query.value.size = res.data.size;
       query.value.current = res.data.current;
@@ -228,19 +189,23 @@ function loadData() {
       console.log(err);
     });
 }
-function resetForm() {
-  form.value = {};
-}
 function backTable() {
-  resetForm();
+  form.value = {};
   showEdit.value = false;
 }
 function handleUpdate(row) {
-  showEdit.value = true;
-  form.value = JSON.parse(JSON.stringify(row));
+  selectSysPostById(row.sysPostId)
+    .then((res) => {
+      form.value = res.data;
+      showEdit.value = true;
+    })
+    .catch((res) => {
+      console.log(res);
+    });
 }
 function handleCreate() {
   showEdit.value = true;
+  resetForm();
 }
 function handleDelete(row) {
   ElMessageBox.confirm("此操作将永久删除该记录, 是否继续?", "提示", {
@@ -249,10 +214,10 @@ function handleDelete(row) {
     type: "warning",
   })
     .then(() => {
-      deleteSysUser(row.sysUserId)
+      deleteSysPost(row.sysPostId)
         .then((res) => {
           ElMessage.success("删除成功");
-          currentChange(1);
+          loadData();
         })
         .catch((err) => {
           console.log(err);
@@ -268,8 +233,8 @@ function handleDelete(row) {
 function submitForm() {
   formValidate.value.validate((valid) => {
     if (valid) {
-      if (form.value.sysUserId != null) {
-        updateSysUser(form.value)
+      if (form.value.sysPostId != null) {
+        updateSysPost(form.value)
           .then((res) => {
             showEdit.value = false;
             resetForm();
@@ -280,7 +245,7 @@ function submitForm() {
             console.log(err);
           });
       } else {
-        addSysUser(form.value)
+        addSysPost(form.value)
           .then((res) => {
             showEdit.value = false;
             resetForm();
@@ -297,8 +262,6 @@ function submitForm() {
 
 onMounted(() => {
   loadData();
-  loadSysRoleOptions();
-  loadSysPostOptions();
 });
 </script>
 

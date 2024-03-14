@@ -5,9 +5,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-const url = ref('http://localhost:9988/druid');
+import { ref } from "vue";
+const url = ref(import.meta.env.VITE_BASE_API + "druid");
 </script>
+
 <style scoped>
 .sql-minitor-div {
   width: 100%;
